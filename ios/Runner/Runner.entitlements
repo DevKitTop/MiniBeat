@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Deep links / Universal Links placeholder (PLT-003). Replace repmini.example.com
+	     with the real verified associated domain and enable the capability in Xcode. -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:repmini.example.com</string>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Google OAuth client ID placeholder (PLT-004). Replace with the real
+         Web/Android OAuth client ID registered in the Google Cloud console at
+         config time. Never commit a real client ID. -->
+    <string name="default_web_client_id" translatable="false">YOUR_ANDROID_OAUTH_CLIENT_ID.apps.googleusercontent.com</string>
+</resources>

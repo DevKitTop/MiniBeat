@@ -6,7 +6,10 @@ plugins {
 
 android {
     namespace = "com.example.rep_mini"
-    compileSdk = flutter.compileSdkVersion
+    // SDK levels pinned at Flutter 3.44 defaults (compileSdk 36, minSdk 24,
+    // targetSdk 36) — resolved at apply per the foundations design open question.
+    // Bump deliberately with plugin requirements; keep aligned with Flutter defaults.
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -19,8 +22,8 @@ android {
         applicationId = "com.example.rep_mini"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 24
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -39,6 +42,12 @@ kotlin {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
 }
+
+// Google OAuth (PLT-004): register the debug/release SHA-1 certificate
+// fingerprints in the Google Cloud console and associate them with the OAuth
+// client ID. Get the debug fingerprint with:
+//   keytool -list -v -keystore %USERPROFILE%\.android\debug.keystore -alias androiddebugkey -storepass android -keypass android
+// Placeholder only — do not commit real fingerprints.
 
 flutter {
     source = "../.."
