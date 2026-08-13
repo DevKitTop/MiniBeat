@@ -16,15 +16,15 @@ W0 scaffold (A1) · W1 skeleton+deps (A2–A3) · W2 env+lints+AGENTS (A4–A6) 
 
 Deps: A1→all; A3→all B; A4→B11; A5→analyze gates.
 
-- [ ] A1 — git init + .gitignore + initial commit — `git log`, `flutter test` green
-- [ ] A2 — lib/ skeleton per design tree + .gitkeep — ASH-006 — dirs exist, no domain/
-- [ ] A3 — pubspec pins stack deps per #437 (just_audio, audio_service, audio_session, supabase_flutter, flutter_riverpod, go_router, drift, drift_flutter, google_sign_in, flutter_dotenv; dev: drift_dev, build_runner) + `flutter pub get` — lock pinned
-- [ ] A4 — .env.example placeholders (SUPABASE_URL, ANON_KEY, GOOGLE_CLIENT_ID) + .env + .gitignore — CFG-001/002 — no secrets, .env untracked
-- [ ] A5 — analysis_options.yaml: flutter_lints, exclude `**/*.g.dart` — PLT-006 — `flutter analyze` clean
-- [ ] A6 — root AGENTS.md: no secrets, Local/Cloud separation, ADR rule — PLT-005/CFG-002
-- [ ] A7 — AndroidManifest: POST_NOTIFICATIONS, FOREGROUND_SERVICE(+MEDIA_PLAYBACK), AudioService FGS, app-link filter; strings/gradle OAuth placeholders — PLT-001/003/004 — apk debug build
-- [ ] A8 — iOS Info.plist: UIBackgroundModes audio, CFBundleURLTypes scheme, associated-domains placeholder — PLT-002/003/004 — inspect
-- [ ] A9 — Batch A gate: pub get+analyze+test clean; commit W4
+- [x] A1 — git init + .gitignore + initial commit — `git log`, `flutter test` green
+- [x] A2 — lib/ skeleton per design tree + .gitkeep — ASH-006 — dirs exist, no domain/
+- [x] A3 — pubspec pins stack deps per #437 (just_audio, audio_service, audio_session, supabase_flutter, flutter_riverpod, go_router, drift, drift_flutter, google_sign_in, flutter_dotenv; dev: drift_dev, build_runner) + `flutter pub get` — lock pinned
+- [x] A4 — .env.example placeholders (SUPABASE_URL, ANON_KEY, GOOGLE_CLIENT_ID) + .env + .gitignore — CFG-001/002 — no secrets, .env untracked
+- [x] A5 — analysis_options.yaml: flutter_lints, exclude `**/*.g.dart` — PLT-006 — `flutter analyze` clean
+- [x] A6 — root AGENTS.md: no secrets, Local/Cloud separation, ADR rule — PLT-005/CFG-002
+- [x] A7 — AndroidManifest: POST_NOTIFICATIONS, FOREGROUND_SERVICE(+MEDIA_PLAYBACK), AudioService FGS, app-link filter; strings/gradle OAuth placeholders — PLT-001/003/004 — apk debug build
+- [x] A8 — iOS Info.plist: UIBackgroundModes audio, CFBundleURLTypes scheme, associated-domains placeholder — PLT-002/003/004 — inspect
+- [x] A9 — Batch A gate: pub get+analyze+test clean; commit W4
 
 ## Phase 2 — Batch B: app skeleton (Dart + tests; test-first RED→GREEN)
 
