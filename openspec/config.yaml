@@ -1,0 +1,48 @@
+# openspec/config.yaml — SDD configuration for rep_mini
+schema: spec-driven
+
+context: |
+  Tech stack: Flutter 3.44.9 (stable) / Dart 3.12.2 — "Personal Audio Cloud", private personal-audio app for Android + iOS.
+  Implementation: 0% — lib/main.dart is the default counter demo; pubspec.yaml has only flutter + cupertino_icons.
+  Product truth: rep_docs/music_app_docs/ (AGENTS.md, PRODUCT_SPEC.md, requirements/, flows/, decisions/, technical/).
+  Architecture: not chosen yet — ~23 open technical decisions (audio engine, storage provider, state mgmt, navigation, local DB, auth).
+  Conventions: keep architecture small; justify each dependency; small reversible changes; Local and Cloud content spaces stay separate.
+
+rules:
+  proposal:
+    - Reference the rep_docs/music_app_docs source-of-truth docs
+    - Include a rollback plan for risky changes
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - Never invent product behavior; verify against business-rules.md first
+  design:
+    - Keep the architecture small; no domain layer unless current complexity justifies it
+    - Document architecture decisions with rationale
+    - Explicitly resolve items from open-technical-decisions.md instead of guessing
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+    - Add tests for behavior affecting business rules, playback state, transfers, or persistence
+  apply:
+    - Follow existing code patterns
+    - Run static analysis after meaningful code changes
+    tdd: true
+    test_command: "flutter test"
+  verify:
+    test_command: "flutter test"
+    build_command: "flutter analyze"
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
+
+testing:
+  strict_tdd: true
+  runner: flutter test
+  layers:
+    unit: true
+    widget: true
+    integration: false
+  coverage: false
+  linter: flutter analyze
+  formatter: dart format
