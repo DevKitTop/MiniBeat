@@ -122,6 +122,11 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
+  # Bundled configuration for flutter_dotenv (CFG-001). `.env` holds
+  # placeholder values only (CFG-002); real values never leave the device.
+  assets:
+    - .env
+
   # Google font family (ASH-002): Roboto variable font, OFL-licensed
   # (assets/fonts/LICENSE.txt). Google Sans is NOT bundled (licensing caveat
   # documented in lib/core/theme/app_theme.dart).
