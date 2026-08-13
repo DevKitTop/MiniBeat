@@ -35,6 +35,33 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # Audio engine (ADR-001)
+  just_audio: ^0.10.6
+  audio_service: ^0.18.19
+  audio_session: ^0.2.4
+
+  # Cloud storage + auth (ADR-002)
+  supabase_flutter: ^2.17.1
+  google_sign_in: ^7.2.0
+
+  # State management (ADR-003)
+  # DEVIATION: design pinned flutter_riverpod 3.4.2, but riverpod 3.x depends on
+  # `test ^1.0.0` which conflicts with flutter_test's test_api 0.7.11/matcher
+  # 0.12.19 pins in Flutter 3.44.9 (verified via pub solver). 2.6.1 is the latest
+  # 2.x; the manual Notifier/NotifierProvider API used in Batch B is unchanged.
+  flutter_riverpod: ^2.6.1
+
+  # Navigation (ADR-004)
+  go_router: ^17.5.0
+
+  # Local database (ADR-005)
+  drift: ^2.34.3
+  drift_flutter: ^0.3.1
+
+  # Environment config (CFG-001). NOTE: .env must be added to the flutter
+  # assets section in Batch B (design note) so flutter_dotenv can load it.
+  flutter_dotenv: ^6.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -45,6 +72,13 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+
+  # Code generation (LDB-004)
+  build_runner: ^2.4.13
+  drift_dev: ^2.34.5
+
+  # Test mocks
+  mockito: ^5.4.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
