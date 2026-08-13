@@ -30,19 +30,19 @@ Deps: A1→all; A3→all B; A4→B11; A5→analyze gates.
 
 Deps: B1→B2→B3→B4; B7/B8→B9→B10→B11→B13; B5/B6 before B11.
 
-- [ ] B1 — 10 Drift tables, @DataClassName, FKs — LDB-001/005/006 — compiles
-- [ ] B2 — app_database.dart: v1, MigrationStrategy (onCreate, foreign_keys), forTesting() memory — LDB-002/003
-- [ ] B3 — build_runner → schema-only .g.dart — LDB-004
-- [ ] B4 — app_database_test.dart: 10 tables, open v1, AudioRecord round-trip, cache≠download, identity — LDB-001..006
-- [ ] B5 — AppConfig{supabaseUrl, anonKey} + ConfigException on missing key — CFG-003 — test throws
-- [ ] B6 — ProductPolicy: 30MB, {mp3,m4a,aac,flac,wav}, historyLimit 20 + helpers; tests: values, OGG/OPUS reject, literal meta-scan, no-secrets — CFG-004/005/002
-- [ ] B7 — app_theme.dart: M3 + Roboto, Google Sans caveat — ASH-002
-- [ ] B8 — providers: auth_session (manual Notifier, unauth) + app_providers graph — ASH-001/005
-- [ ] B9 — router: StatefulShellRoute.indexedStack 3 branches + /cloud/sign-in, redirect refreshListenable — ASH-003/004
-- [ ] B10 — app_shell.dart + 4 placeholder screens — ASH-003/004
-- [ ] B11 — main/app.dart: dotenv → AppConfig → ProviderScope → MaterialApp.router; .env asset — ASH-001/CFG-001
-- [ ] B12 — interfaces: metadata_extractor, media_indexer, transfer_service, playback_controller — deferrables
-- [ ] B13 — smoke tests: shell renders, /local boots, /cloud redirects unauth, override Cloud OK — ASH-001..004
-- [ ] B14 — optional: mirror ADRs to rep_docs/…/architecture-decisions.md
+- [x] B1 — 10 Drift tables, @DataClassName, FKs — LDB-001/005/006 — compiles
+- [x] B2 — app_database.dart: v1, MigrationStrategy (onCreate, foreign_keys), forTesting() memory — LDB-002/003
+- [x] B3 — build_runner → schema-only .g.dart — LDB-004
+- [x] B4 — app_database_test.dart: 10 tables, open v1, AudioRecord round-trip, cache≠download, identity — LDB-001..006
+- [x] B5 — AppConfig{supabaseUrl, anonKey} + ConfigException on missing key — CFG-003 — test throws
+- [x] B6 — ProductPolicy: 30MB, {mp3,m4a,aac,flac,wav}, historyLimit 20 + helpers; tests: values, OGG/OPUS reject, literal meta-scan, no-secrets — CFG-004/005/002
+- [x] B7 — app_theme.dart: M3 + Roboto, Google Sans caveat — ASH-002
+- [x] B8 — providers: auth_session (manual Notifier, unauth) + app_providers graph — ASH-001/005
+- [x] B9 — router: StatefulShellRoute.indexedStack 3 branches + /cloud/sign-in, redirect refreshListenable — ASH-003/004
+- [x] B10 — app_shell.dart + 4 placeholder screens — ASH-003/004
+- [x] B11 — main/app.dart: dotenv → AppConfig → ProviderScope → MaterialApp.router; .env asset — ASH-001/CFG-001
+- [x] B12 — interfaces: metadata_extractor, media_indexer, transfer_service, playback_controller — deferrables
+- [x] B13 — smoke tests: shell renders, /local boots, /cloud redirects unauth, override Cloud OK — ASH-001..004
+- [x] B14 — optional: mirror ADRs to rep_docs/…/architecture-decisions.md
 
 Open: ADR mirror to rep_docs? compileSdk pin at apply.
