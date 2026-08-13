@@ -121,3 +121,12 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  # Google font family (ASH-002): Roboto variable font, OFL-licensed
+  # (assets/fonts/LICENSE.txt). Google Sans is NOT bundled (licensing caveat
+  # documented in lib/core/theme/app_theme.dart).
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Variable.ttf
+
