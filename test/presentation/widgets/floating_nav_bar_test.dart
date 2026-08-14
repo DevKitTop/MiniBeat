@@ -93,7 +93,7 @@ void main() {
     });
 
     testWidgets('bar color, shape, and elevation derive from theme tokens '
-        '(D2, M3 defaults)', (tester) async {
+        '(D2)', (tester) async {
       await tester.pumpWidget(_harness(selectedIndex: 1));
 
       final theme = Theme.of(tester.element(find.byType(FloatingNavBar)));
@@ -102,17 +102,30 @@ void main() {
       );
 
       expect(bar.color, theme.colorScheme.surfaceContainer);
-      // buildAppTheme() leaves cardTheme.shape / navigationBarTheme.elevation
-      // unset (null in Flutter 3.44.9), so the bar falls back to the M3
-      // defaults: RoundedRectangleBorder(12) and elevation 3.
-      expect(
-        bar.shape,
-        theme.cardTheme.shape ??
-            const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(12)),
-            ),
+      // The app theme (buildAppTheme) provides the M3 tokens — card radius 12
+      // and elevation 3 — and the bar reads them directly, with no hardcoded
+      // fallback values.
+      expect(theme.cardTheme.shape, isNotNull);
+      expect(theme.navigationBarTheme.elevation, isNotNull);
+      expect(bar.shape, theme.cardTheme.shape);
+      expect(bar.elevation, theme.navigationBarTheme.elevation);
+    });
+
+    testWidgets('missing theme tokens fail loudly — no hardcoded fallback '
+        '(D2)', (tester) async {
+      final nullTokensTheme = ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
       );
-      expect(bar.elevation, theme.navigationBarTheme.elevation ?? 3);
+      // Premise: ThemeData leaves these tokens null unless explicitly set —
+      // the bar must not silently substitute hardcoded 12/3 values.
+      expect(nullTokensTheme.cardTheme.shape, isNull);
+      expect(nullTokensTheme.navigationBarTheme.elevation, isNull);
+
+      await tester.pumpWidget(
+        _harness(selectedIndex: 1, theme: nullTokensTheme),
+      );
+      expect(tester.takeException(), isA<StateError>());
     });
 
     testWidgets('bar honors explicitly themed shape and elevation '

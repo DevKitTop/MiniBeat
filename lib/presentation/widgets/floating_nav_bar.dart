@@ -32,16 +32,24 @@ class FloatingNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    // D2: derive, don't invent. `cardTheme.shape` and
-    // `navigationBarTheme.elevation` are null in the default theme
-    // (verified on Flutter 3.44.9), so fall back to the M3 defaults:
-    // RoundedRectangleBorder(12) and elevation 3.
-    final shape =
-        theme.cardTheme.shape ??
-        const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
-        );
-    final elevation = theme.navigationBarTheme.elevation ?? 3;
+    // D2: derive, don't invent. The app theme (buildAppTheme) provides the M3
+    // tokens — card radius 12 and elevation 3 — and the bar reads them
+    // directly. A theme that omits them is a contract violation: fail loudly
+    // instead of silently substituting hardcoded constants.
+    final shape = theme.cardTheme.shape;
+    if (shape == null) {
+      throw StateError(
+        'FloatingNavBar requires Theme.cardTheme.shape — set it in '
+        'buildAppTheme() (ASH-007 D2).',
+      );
+    }
+    final elevation = theme.navigationBarTheme.elevation;
+    if (elevation == null) {
+      throw StateError(
+        'FloatingNavBar requires Theme.navigationBarTheme.elevation — set it '
+        'in buildAppTheme() (ASH-007 D2).',
+      );
+    }
 
     return SafeArea(
       top: false,
