@@ -1,4 +1,4 @@
-package com.example.rep_mini
+package com.alonsoernesto.repmini
 
 import io.flutter.embedding.android.FlutterActivity
 

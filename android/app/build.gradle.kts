@@ -16,7 +16,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.rep_mini"
+    namespace = "com.alonsoernesto.repmini"
     // SDK levels pinned at Flutter 3.44 defaults (compileSdk 36, minSdk 24,
     // targetSdk 36) — resolved at apply per the foundations design open question.
     // Bump deliberately with plugin requirements; keep aligned with Flutter defaults.
@@ -29,8 +29,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.rep_mini"
+        applicationId = "com.alonsoernesto.repmini"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 24
