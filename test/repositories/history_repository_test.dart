@@ -133,4 +133,112 @@ void main() {
       await sub.cancel();
     });
   });
+
+  group('HistoryRepository.watchRecentMerged (LDB-009/BR-011)', () {
+    late AppDatabase db;
+    late HistoryRepository repo;
+
+    setUp(() {
+      db = AppDatabase.forTesting();
+      repo = HistoryRepository(db);
+    });
+
+    tearDown(() async {
+      await db.close();
+    });
+
+    Future<int> insertHistory({
+      required String space,
+      required DateTime playedAt,
+    }) {
+      return db
+          .into(db.history)
+          .insert(HistoryCompanion.insert(space: space, playedAt: playedAt));
+    }
+
+    test('merges both spaces ordered playedAt DESC, capped at 20 total '
+        '(14 local + 10 cloud)', () async {
+      final base = DateTime.utc(2026, 5);
+      // 14 local entries at minutes 0..13.
+      for (var i = 0; i < 14; i++) {
+        await insertHistory(
+          space: 'local',
+          playedAt: base.add(Duration(minutes: i)),
+        );
+      }
+      // 10 cloud entries at minutes 14..23 (newer than every local row).
+      for (var i = 14; i < 24; i++) {
+        await insertHistory(
+          space: 'cloud',
+          playedAt: base.add(Duration(minutes: i)),
+        );
+      }
+
+      final rows = await repo.watchRecentMerged().first;
+
+      // 24 total rows capped to the 20 newest — the 4 oldest local inserts
+      // (minutes 0..3) must be dropped.
+      expect(rows, hasLength(ProductPolicy.historyLimit));
+      expect(rows.map((r) => r.space).toSet(), {'local', 'cloud'});
+      // 10 cloud (minutes 14..23) + 10 local (minutes 4..13) survive the cap.
+      expect(rows.where((r) => r.space == 'cloud'), hasLength(10));
+      expect(rows.where((r) => r.space == 'local'), hasLength(10));
+      // Strictly descending playedAt (most recent first).
+      for (var i = 1; i < rows.length; i++) {
+        expect(rows[i - 1].playedAt.isAfter(rows[i].playedAt), isTrue);
+      }
+      // The newest kept entry is the newest cloud row; the oldest kept is the
+      // local row at minute 4. (Drift reads back in local time — compare
+      // instants via toUtc.)
+      expect(
+        rows.first.playedAt.toUtc(),
+        base.add(const Duration(minutes: 23)),
+      );
+      expect(rows.last.playedAt.toUtc(), base.add(const Duration(minutes: 4)));
+    });
+
+    test(
+      'identical playedAt across spaces ties break by id descending (D5)',
+      () async {
+        final t = DateTime.utc(2026, 5, 10, 12);
+        final id1 = await insertHistory(space: 'local', playedAt: t);
+        final id2 = await insertHistory(space: 'cloud', playedAt: t);
+        final id3 = await insertHistory(space: 'local', playedAt: t);
+
+        final rows = await repo.watchRecentMerged().first;
+
+        expect(rows.map((r) => r.id).toList(), [id3, id2, id1]);
+      },
+    );
+
+    test('empty history across both spaces returns empty', () async {
+      final rows = await repo.watchRecentMerged().first;
+
+      expect(rows, isEmpty);
+    });
+
+    test('limit honored below the cap and clamped above it', () async {
+      final base = DateTime.utc(2026, 6);
+      // 25 entries spread across both spaces.
+      for (var i = 0; i < 13; i++) {
+        await insertHistory(
+          space: 'local',
+          playedAt: base.add(Duration(minutes: i)),
+        );
+      }
+      for (var i = 13; i < 25; i++) {
+        await insertHistory(
+          space: 'cloud',
+          playedAt: base.add(Duration(minutes: i)),
+        );
+      }
+
+      final five = await repo.watchRecentMerged(limit: 5).first;
+      expect(five, hasLength(5));
+      expect(five.map((r) => r.space).toSet(), {'cloud'}); // minutes 24..20
+
+      final fifty = await repo.watchRecentMerged(limit: 50).first;
+      expect(fifty, hasLength(ProductPolicy.historyLimit));
+    });
+  });
 }

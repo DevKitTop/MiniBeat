@@ -35,4 +35,24 @@ class HistoryRepository {
       ..limit(capped);
     return query.watch();
   }
+
+  /// Watches the most recent play-history entries across BOTH content spaces
+  /// in one result, ordered by `playedAt` descending with `id` descending as a
+  /// stable tie-break (D5).
+  ///
+  /// The cap (BR-011) applies to the merged TOTAL: the result holds at most
+  /// `min(limit, ProductPolicy.historyLimit)` entries (LDB-009, D6).
+  /// Additive: [watchRecent] keeps its space-scoped semantics (LDB-007).
+  Stream<List<HistoryRecord>> watchRecentMerged({
+    int limit = ProductPolicy.historyLimit,
+  }) {
+    final capped = math.min(math.max(limit, 0), ProductPolicy.historyLimit);
+    final query = _db.select(_db.history)
+      ..orderBy([
+        (row) => OrderingTerm.desc(row.playedAt),
+        (row) => OrderingTerm.desc(row.id),
+      ])
+      ..limit(capped);
+    return query.watch();
+  }
 }
