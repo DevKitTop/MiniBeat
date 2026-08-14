@@ -34,10 +34,10 @@ Deps: W4→W5, W6→W7, W8 after W5+W7. Independent of Batch 1.
 
 Deps: independent.
 
-- [ ] W9 — `rep_docs/music_app_docs/PRODUCT_SPEC.md` §4 (L65-78): replace Música/Playlist/Configuración block and `Dentro de Música` with the design's exact text (Music / History / Settings bullets in bar order, `Music (centro, destacado)`, `Dentro de Music`); keep `- Local` / `- Cloud` bullets and the L78 sign-in sentence; verify `git diff` shows §4 only — no tests needed
+- [x] W9 — `rep_docs/music_app_docs/PRODUCT_SPEC.md` §4 (L65-78): replace Música/Playlist/Configuración block and `Dentro de Música` with the design's exact text (Music / History / Settings bullets in bar order, `Music (centro, destacado)`, `Dentro de Music`); keep `- Local` / `- Cloud` bullets and the L78 sign-in sentence; verify `git diff` shows §4 only — no tests needed
 
 ## Phase 4 — Finalization
 
 Deps: W10 after all batches.
 
-- [ ] W10 — full gate: `flutter analyze` clean + full `flutter test` green (existing `app_shell_test.dart`/`widget_test.dart` assert `NavigationBar` — app_shell untouched, still pass); commits already split by work unit
+- [x] W10 — full gate: `flutter analyze` clean + full `flutter test` green (existing `app_shell_test.dart`/`widget_test.dart` assert `NavigationBar` — app_shell untouched, still pass); commits already split by work unit

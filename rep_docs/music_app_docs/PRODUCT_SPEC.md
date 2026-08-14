@@ -66,11 +66,11 @@ El método de autenticación previsto para el MVP es Google Sign-In.
 
 Navegación inferior prevista:
 
-- Música
-- Playlist
-- Configuración
+- History
+- Music (centro, destacado)
+- Settings
 
-Dentro de Música existirán dos espacios claramente separados:
+Dentro de Music existirán dos espacios claramente separados:
 
 - Local
 - Cloud
