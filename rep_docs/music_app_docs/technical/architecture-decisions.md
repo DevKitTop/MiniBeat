@@ -103,3 +103,16 @@ Confirmed decisions recorded with the change that introduced them
 | ADR-005 | Local database: Drift 2.34.3 + `drift_flutter` 0.3.1 (`drift_dev` 2.34.5) | Type-safe SQL, versioned migrations, reactive `watch()`, in-memory test database, relational model maps 1:1 to the 10 persisted records; rejected: Isar (archived, no Dart 3), sqflite (raw SQL) |
 | ADR-006 | Policy/identity model: 30 MB upload limit; allowlist MP3/M4A(AAC)/FLAC/WAV; duplicate = SHA-256 authoritative over size+duration pre-filter; history max 20 | User-confirmed; OGG/OPUS excluded (unreliable iOS AVPlayer support); layered hash detection per local-persistence-and-sync |
 
+## Recorded change decisions (change: `custom-navbar`, custom floating navigation bar)
+
+Non-ADR decisions recorded with the change that introduced them (change: `custom-navbar`).
+These do not require an ADR under the rule above (no engine/storage/DB/state/nav-strategy
+change); they are recorded here because the design's open question asked for a decision
+doc and the verify report requested reconciliation at archive.
+
+| Decision | Choice | Rationale (short) |
+|----------|--------|--------------------|
+| D4 — LDB-008 downloads ordering | `updatedAt` DESC primary, `id` DESC tie-break | A completed-downloads view means "most recently completed first"; `updatedAt` reflects the transfer state machine's last change (completion time for completed rows), `createdAt` would order by transfer start (stale semantics); `id DESC` is a deterministic tie-break for identical timestamps |
+| D5 — LDB-007 history tie-break | `playedAt` DESC (spec) + `id` DESC secondary | Matches "most recent play first" and keeps query results reproducible for identical `playedAt` timestamps |
+| D2 — FloatingNavBar theme tokens | Bar `colorScheme.surfaceContainer`; center circle `secondaryContainer`/`onSecondaryContainer`; side icons `onSurfaceVariant`/`onSurface`; container radius `cardTheme.shape`; elevation `navigationBarTheme.elevation` | One radius does not justify a ThemeExtension (justify-every-token rule); deriving from M3 tokens satisfies ASH-007 "no hardcoded color/radius constants". Reconciliation (commit 2787e3e): `buildAppTheme()` sets radius 12 / elevation 3 and the widget throws `StateError` if the tokens are absent — no silent hardcoded fallbacks |
+
