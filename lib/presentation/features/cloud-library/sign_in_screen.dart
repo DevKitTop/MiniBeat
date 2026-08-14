@@ -1,16 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Sign-in placeholder (ASH-004).
+import '../../../core/providers/auth_session_provider.dart';
+
+/// Sign-in placeholder (ASH-004, D8).
 ///
-/// Target of the auth-gate redirect for unauthenticated Cloud navigation.
-/// The real Google OAuth flow is deferred.
-class SignInScreen extends StatelessWidget {
+/// Rendered in-screen by the Music screen when the Cloud space is selected
+/// without an authenticated session. The real Google OAuth flow is deferred;
+/// the demo button flips `authSessionProvider` so the gate swaps to the cloud
+/// library reactively — no navigation (D8).
+class SignInScreen extends ConsumerWidget {
   const SignInScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Sign in to access your cloud library'),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('Sign in to access your cloud library'),
+          const SizedBox(height: 12),
+          FilledButton(
+            key: const ValueKey('sign-in-demo-button'),
+            onPressed: () => ref.read(authSessionProvider.notifier).signIn(),
+            child: const Text('Sign in'),
+          ),
+        ],
+      ),
     );
   }
 }
