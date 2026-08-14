@@ -24,11 +24,11 @@ Deps: W1→W2→W3. No prior batch dependency.
 
 Deps: W4→W5, W6→W7, W8 after W5+W7. Independent of Batch 1.
 
-- [ ] W4 (RED) — `test/repositories/history_repository_test.dart` (new dir; `AppDatabase.forTesting()` setUp/tearDown per `app_database_test.dart`): failing tests — 25 inserts one space → at most 20, most recent first; local+cloud rows → space filter returns local only; empty space → empty; identical `playedAt` → `id` DESC; `limit: 5` → 5, `limit: 50` → still 20 — LDB-007/BR-011
-- [ ] W5 (GREEN) — `lib/repositories/history_repository.dart`: `watchRecent({required String space, int limit = ProductPolicy.historyLimit})` → drift `watch()`, where space, `orderBy` playedAt DESC + id DESC, cap `min(limit, ProductPolicy.historyLimit)`; no providers this slice — LDB-007
-- [ ] W6 (RED) — `test/repositories/downloads_repository_test.dart`: failing tests — completed+failed+queued rows → only completed; distinct `updatedAt` → DESC; identical `updatedAt` → `id` DESC; no completed rows → empty — LDB-008
-- [ ] W7 (GREEN) — `lib/repositories/downloads_repository.dart`: `watchByStatus(String status)` → drift `watch()`, where status, `orderBy` updatedAt DESC + id DESC — LDB-008/D4
-- [ ] W8 — batch-2 gate: `flutter analyze` clean + both repo suites green; commit W8
+- [x] W4 (RED) — `test/repositories/history_repository_test.dart` (new dir; `AppDatabase.forTesting()` setUp/tearDown per `app_database_test.dart`): failing tests — 25 inserts one space → at most 20, most recent first; local+cloud rows → space filter returns local only; empty space → empty; identical `playedAt` → `id` DESC; `limit: 5` → 5, `limit: 50` → still 20 — LDB-007/BR-011
+- [x] W5 (GREEN) — `lib/repositories/history_repository.dart`: `watchRecent({required String space, int limit = ProductPolicy.historyLimit})` → drift `watch()`, where space, `orderBy` playedAt DESC + id DESC, cap `min(limit, ProductPolicy.historyLimit)`; no providers this slice — LDB-007
+- [x] W6 (RED) — `test/repositories/downloads_repository_test.dart`: failing tests — completed+failed+queued rows → only completed; distinct `updatedAt` → DESC; identical `updatedAt` → `id` DESC; no completed rows → empty — LDB-008
+- [x] W7 (GREEN) — `lib/repositories/downloads_repository.dart`: `watchByStatus(String status)` → drift `watch()`, where status, `orderBy` updatedAt DESC + id DESC — LDB-008/D4
+- [x] W8 — batch-2 gate: `flutter analyze` clean + both repo suites green; commit W8
 
 ## Phase 3 — Batch 3: PRODUCT_SPEC §4 wording
 

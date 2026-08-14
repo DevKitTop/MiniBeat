@@ -65,3 +65,51 @@ AudioRecord MUST include size, duration, and a SHA-256 content-hash field to sup
 - GIVEN an AudioRecord row
 - WHEN its fields are read
 - THEN size, duration, and content-hash fields are populated
+
+### Requirement: LDB-007 History read query
+
+The app MUST provide a read query at the repository layer that returns recent play-history entries for a given content space (the `space` column), ordered by `playedAt` descending, capped at 20 entries. The 20-entry cap (BR-011) MUST be enforced in the app/repository layer via the product policy, not in the table definition.
+
+#### Scenario: Most recent first, never exceeding the cap
+
+- GIVEN a database with more than 20 history entries for one space
+- WHEN the history query runs for that space
+- THEN the result contains at most 20 entries
+- AND entries are ordered by `playedAt` descending (most recent first)
+
+#### Scenario: Filters by content space
+
+- GIVEN history entries for both `local` and `cloud` spaces
+- WHEN the history query runs with space `local`
+- THEN only `local` entries are returned
+- AND no `cloud` entries appear in the result
+
+#### Scenario: No history for a space
+
+- GIVEN no history entries exist for space `cloud`
+- WHEN the history query runs with space `cloud`
+- THEN the result is empty
+
+### Requirement: LDB-008 Downloads read query
+
+The app MUST provide a read query at the repository layer that returns explicit user downloads from the `downloads` table, filterable by transfer status (e.g., completed per BR-006), and ordered by creation/update time as defined for this change.
+
+> Open question: the proposal does not define which timestamp (`createdAt` vs `updatedAt`) orders LDB-008 results nor the direction; the design phase must resolve this in a decision doc instead of guessing.
+
+#### Scenario: Returns status-filtered downloads
+
+- GIVEN download records with statuses including `completed` and `failed`
+- WHEN the downloads query runs filtered to completed
+- THEN only completed download records are returned
+
+#### Scenario: Ordered by time as defined
+
+- GIVEN completed downloads with distinct `createdAt`/`updatedAt` timestamps
+- WHEN the downloads query runs
+- THEN the result is ordered per the time ordering defined for this change
+
+#### Scenario: No completed downloads
+
+- GIVEN no download records with status `completed`
+- WHEN the downloads query runs
+- THEN the result is empty
