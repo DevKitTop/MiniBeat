@@ -59,3 +59,7 @@ app.*.map.json
 *.jks
 *.keystore
 key.properties
+
+# Release signing store (keystore, local credentials) — never commit
+/android/keystore/
+/android/keystore.properties
