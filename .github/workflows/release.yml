@@ -44,7 +44,9 @@ jobs:
 
       - name: Write keystore.properties
         run: |
-          cat > android/keystore.properties <<EOF
+          # Quoted delimiter ('EOF') prevents shell expansion of the secret
+          # values (they may contain $, %, &, etc.) — content stays literal.
+          cat > android/keystore.properties <<'EOF'
           storeFile=../keystore/release.jks
           storePassword=${{ secrets.KEYSTORE_PASSWORD }}
           keyAlias=${{ secrets.KEY_ALIAS }}
