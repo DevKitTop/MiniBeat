@@ -71,3 +71,38 @@ Riverpod providers MUST use the manual Notifier/Provider API only — no codegen
 - GIVEN the scaffold is built
 - WHEN the `lib/` folder tree is inspected
 - THEN all required folders exist and no `domain/` folder exists
+
+### Requirement: ASH-007 Custom floating navigation bar
+
+The app shell MUST provide a custom floating rounded Material 3 navigation bar widget with exactly three destinations in fixed order — History (left), Music (center, prominent), Settings (right) — serving as the visual replacement for the standard `NavigationBar`.
+
+The bar MUST be a pure presentational widget: it SHALL NOT import Riverpod, go_router, auth, or repository code; it MUST consume a `selectedIndex` and expose `onDestinationSelected(int)` so the shell can wire it without adapter changes. The bar SHALL NOT contain a standard `NavigationBar` widget.
+
+The bar MUST derive its colors, shapes, and elevation from `Theme.of(context)` using Material 3 `colorScheme`, `textTheme`, and shape tokens; it MUST NOT use hardcoded color or radius constants.
+
+The destination-to-branch mapping SHALL be documented as a contract — index 0 = `/history`, index 1 = `/music`, index 2 = `/settings` — to prevent index drift when the router is wired in a later slice.
+
+#### Scenario: Renders three destinations with center prominence
+
+- GIVEN the bar is pumped with the app theme and `selectedIndex` 1
+- WHEN the bar renders
+- THEN exactly three destinations appear in order History, Music, Settings
+- AND the center Music destination is visually prominent and no standard `NavigationBar` is in the tree
+
+#### Scenario: Callback reports tapped index
+
+- GIVEN the bar is pumped with an `onDestinationSelected` listener
+- WHEN the user taps the Settings destination
+- THEN the callback reports index 2
+
+#### Scenario: Theme-derived visuals
+
+- GIVEN the bar is pumped under a Material 3 theme
+- WHEN the bar's colors, shape, and elevation are inspected
+- THEN they derive from the theme's `colorScheme`/`textTheme`/shape tokens with no hardcoded color or radius constants
+
+#### Scenario: Selected destination is distinct
+
+- GIVEN the bar is pumped with `selectedIndex` 0
+- WHEN the bar renders
+- THEN the History destination is visually distinct from the unselected destinations
