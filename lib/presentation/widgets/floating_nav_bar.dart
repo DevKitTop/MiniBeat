@@ -68,18 +68,18 @@ class FloatingNavBar extends StatelessWidget {
                 _buildSideDestination(
                   context,
                   index: 0,
-                  label: 'History',
+                  label: 'Historial',
                   icon: Icons.history,
                 ),
                 _buildCenterDestination(
                   context,
-                  label: 'Music',
+                  label: 'Música',
                   icon: Icons.music_note,
                 ),
                 _buildSideDestination(
                   context,
                   index: 2,
-                  label: 'Settings',
+                  label: 'Ajustes',
                   icon: Icons.settings,
                 ),
               ],
