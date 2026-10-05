@@ -116,3 +116,14 @@ doc and the verify report requested reconciliation at archive.
 | D5 — LDB-007 history tie-break | `playedAt` DESC (spec) + `id` DESC secondary | Matches "most recent play first" and keeps query results reproducible for identical `playedAt` timestamps |
 | D2 — FloatingNavBar theme tokens | Bar `colorScheme.surfaceContainer`; center circle `secondaryContainer`/`onSecondaryContainer`; side icons `onSurfaceVariant`/`onSurface`; container radius `cardTheme.shape`; elevation `navigationBarTheme.elevation` | One radius does not justify a ThemeExtension (justify-every-token rule); deriving from M3 tokens satisfies ASH-007 "no hardcoded color/radius constants". Reconciliation (commit 2787e3e): `buildAppTheme()` sets radius 12 / elevation 3 and the widget throws `StateError` if the tokens are absent — no silent hardcoded fallbacks |
 
+## Recorded change decisions (change: `theme-cyberpunk-palette`, cyberpunk palette)
+
+Non-ADR decisions (change: `theme-cyberpunk-palette`). Theming is not among the 9 areas in
+the ADR rule above, so these are recorded as D6/D7, following the `custom-navbar` D-series
+precedent.
+
+| Decision | Choice | Rationale (short) |
+|----------|--------|--------------------|
+| D6 — Cyberpunk palette | Explicit design tokens in `buildAppTheme()` rather than `ColorScheme.fromSeed`; Plus Jakarta Sans as default family with Roboto registered as fallback; dark is the default experience and both palettes are reachable via `theme`/`darkTheme` + `ThemeMode.system` | A seed scheme cannot produce these exact surfaces and accents, and a hand-built scheme silently loses M3 container tokens: `ColorScheme.dark()/light()` leave them null and the getters fall back to `surface`/`secondary`/`onSecondary` — that fallback is how five nav-bar tokens went missing. A light palette no user can reach is dead code, so it is wired to `ThemeMode.system` |
+| D7 — `on*` token polarity | `onSurface` / `onSurfaceVariant` are resolved per brightness (`#EDE9FE` / `#9A95C8` dark, `#1A1636` / `#5E5A85` light). A single shared foreground pair is forbidden | The shared pair measures 1.00:1 and 2.69:1 on the dark bar `#181833` — below the 3:1 non-text floor, so the icons painted with it are invisible; the light palette is fine, so the pair cannot be shared. Pinned by literal-value assertions, not theme-to-theme derivation, which is what let the regression through |
+
