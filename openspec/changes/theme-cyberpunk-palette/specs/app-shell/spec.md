@@ -31,7 +31,7 @@ The app theme MUST follow Material Design 3. Plus Jakarta Sans SHALL be the defa
 
 Every `ColorScheme` token read by a presentation widget SHALL be declared explicitly in `buildAppTheme()` for BOTH brightnesses. `FloatingNavBar` paints exactly `surfaceContainer`, `secondaryContainer`, `onSecondaryContainer`, `onSurface`, `onSurfaceVariant`; none MAY be inherited from a Material 3 fallback getter, which silently resolves to `surface`, `secondary`, or `onSecondary` (`color_scheme.dart` L1099, L1109, L1266).
 
-Container roles SHALL form a monotonic tonal ladder per brightness, and `surfaceContainer` SHALL NOT equal `surface`. Distinct means a visible tonal step, NOT a WCAG contrast ratio — M3's own `surfaceContainer` is 1.14:1 against its `surface`.
+Container roles SHALL form a monotonic tonal ladder per brightness, and `surfaceContainer` SHALL NOT equal `surface`. Distinct means a visible tonal step, NOT a WCAG contrast ratio — M3's own tonal steps sit near 1.08:1, measured from the SDK's real baselines: `ColorScheme.dark`'s `surface` `#141318` against its `surfaceContainer` `#1D1B20` is **1.0826:1**, and `ColorScheme.light`'s `#FDF7FF` against `#F3EDF7` is **1.0907:1**. An earlier revision of this spec cited "M3's own `surfaceContainer` is 1.14:1" — that figure was fabricated and is withdrawn. The shipped dark pair (`surfaceContainer` `#181833` against `surface` `#14142B`, **1.0452:1**) sits slightly below that ~1.08:1 reference but in the same tonal family, which is the intended outcome rather than a defect; see the "Distinctness by tonal step, not contrast ratio" decision in `design.md` for why the step was not widened.
 
 Assertions SHALL compare tokens against literal palette values; an expected value read from the `ColorScheme` under test is tautological and prohibited.
 
@@ -85,7 +85,9 @@ Assertions SHALL compare tokens against literal palette values; an expected valu
 
 ### Requirement: ASH-010 Both cyberpunk palettes are reachable
 
-`MaterialApp.router` SHALL set `theme` to the light palette, `darkTheme` to the dark palette, and `themeMode: ThemeMode.system`. A palette no user can reach SHALL NOT be shipped as the accessibility variant.
+`MaterialApp.router` SHALL set `theme` to the light palette and `darkTheme` to the dark palette. A palette no user can reach SHALL NOT be shipped as the accessibility variant.
+
+`themeMode` SHALL either be passed `ThemeMode.system` explicitly or left at the `MaterialApp` default, which already IS `ThemeMode.system`. Likewise `darkTheme` SHALL either be passed `buildAppTheme(brightness: Brightness.dark)` explicitly or rely on `buildAppTheme()`'s own `Brightness.dark` default. Both arguments are omitted in the shipped code because restating an existing default trips `avoid_redundant_argument_values` (`analysis_options.yaml:19`) — the same ASH-011 rule that keeps light `surface` unredeclared. Either form satisfies this requirement; what MUST hold is that BOTH palettes stay reachable per platform polarity.
 
 `MaterialApp` resolves `theme` when the effective `ThemeMode` is light and `darkTheme` when it is dark. Mapping the dark palette to `theme` and the light palette to `darkTheme` would hand the dark palette to light-mode users, so the assignment MUST follow the platform polarity rather than the palette's aesthetic intensity.
 
@@ -93,13 +95,14 @@ Assertions SHALL compare tokens against literal palette values; an expected valu
 
 - GIVEN a widget test pumps `App`
 - WHEN the `MaterialApp.router` widget is inspected
-- THEN `theme.brightness` is light, `darkTheme.brightness` is dark, `themeMode` is `ThemeMode.system`
+- THEN `theme.brightness` is light and `darkTheme.brightness` is dark
+- AND `themeMode` is `ThemeMode.system`, whether passed explicitly or inherited from the `MaterialApp` default
 
 #### Scenario: System brightness selects the palette
 
-- GIVEN the bar theme resolves once per platform brightness
-- WHEN the platform brightness is dark and then light
-- THEN the dark palette is used and then the light palette is used
+- GIVEN the app is pumped under a dark platform brightness and then under a light one
+- WHEN the RESOLVED theme is read from below `MaterialApp` via `Theme.of(context)`, NOT from the declared `theme`/`darkTheme` slots
+- THEN `surfaceContainer` is `0xFF181833` under dark polarity and `0xFFF0ECFA` under light polarity
 
 ### Requirement: ASH-011 Material 3 defaults are not redeclared
 
@@ -144,10 +147,14 @@ The `surfaceContainer*` ladder plus `secondaryContainer` / `onSecondaryContainer
 | `surfaceContainer` | `#181833` | `#F0ECFA` |
 | `surfaceContainerHigh` | `#1B1B3B` | `#E9E4F6` |
 | `surfaceContainerHighest` | `#1E1E3F` (agreed) | `#E2DCF2` |
-| `secondaryContainer` | `#1E3A6E` | `#DCE7FD` |
+| `secondaryContainer` | `#1E3A6E` | `#BFD2FB` |
 | `onSecondaryContainer` | `#D7E3FF` | `#0B2A6B` |
 
-Rationale: `secondaryContainer` is a desaturated, low-chroma tint of `secondary` — never the raw accent — matching M3 container semantics; `onSecondaryContainer` clears WCAG AA (dark 8.66:1, light 10.84:1). Alternatives: brighter bar (`#1B1B3B` dark / `#EBE5F8` light); violet-tinted dark container (`#2A2350`). Rejected: `surfaceContainer == surface` — violates ASH-008.
+Rationale: `secondaryContainer` is a desaturated, low-chroma tint of `secondary` — never the raw accent — matching M3 container semantics. Alternatives: brighter bar (`#1B1B3B` dark / `#EBE5F8` light); violet-tinted dark container (`#2A2350`). Rejected: `surfaceContainer == surface` — violates ASH-008.
+
+Light `secondaryContainer` was revised from `#DCE7FD` to **`#BFD2FB`** (decision E / D-series row D8). Measured against the light bar `surfaceContainer` `#F0ECFA`, `#DCE7FD` gave **1.0706:1** — a tonal step too small to see — while `#BFD2FB` gives **1.3079:1**. The cost is headroom on the centre-circle icon: `onSecondaryContainer` `#0B2A6B` measures **8.8764:1** on `#BFD2FB` against **10.8439:1** on the old value. Both remain far above the 4.5:1 text floor, so no legibility requirement is violated, but the reduction is real and recorded rather than described as free. The token is read only for the nav bar's centre circle; nothing else depends on it.
+
+`onSecondaryContainer` clears WCAG AA on both fills: dark `#D7E3FF` on `#1E3A6E` = 8.66:1, light `#0B2A6B` on `#BFD2FB` = 8.8764:1.
 
 ### OPEN Q2 — Dark palette foregrounds fail legibility
 

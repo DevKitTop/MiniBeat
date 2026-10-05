@@ -21,6 +21,31 @@ buildAppTheme() ──> _darkScheme | _lightScheme ──> App(theme, darkTheme,
 | B | D-series row vs new ADR | ADR rule has 9 areas; theming is not one | **D-series row** |
 | C | Declare light `surfaceContainerLowest` or omit | Declare = no-op; contradicts ASH-011 | **Omit**; pinned by test |
 | D | Shared `on*` pair vs per-brightness | Shared saves 2 constants, breaks dark legibility | **Per-brightness** |
+| E | Light `secondaryContainer` `#DCE7FD` vs `#BFD2FB` | `#DCE7FD` gave an invisible 1.0706:1 step off the bar; `#BFD2FB` gives 1.3079:1 | **`#BFD2FB`** (D-series row D8) |
+| F | Widen dark `surface`/`surfaceContainer` step vs keep | Zero-sum — see "Distinctness by tonal step" below | **Keep** `#14142B` (D-series row D9) |
+
+## Distinctness by tonal step, not contrast ratio
+
+`surfaceContainer` must be *distinct* from `surface`, where distinct means a visible tonal step. It does **not** mean "clear 3:1" — that is a WCAG **non-text contrast** requirement for functional boundaries, and M3's own tonal steps do not come close to it. Measured from the SDK's real baselines:
+
+| Reference pair | Ratio |
+|---|---|
+| M3 dark: `surface` `#141318` vs `surfaceContainer` `#1D1B20` | **1.0826:1** |
+| M3 light: `surface` `#FDF7FF` vs `surfaceContainer` `#F3EDF7` | **1.0907:1** |
+
+M3 keeps its `surface` ↔ `surfaceContainer` and `surface` ↔ `surfaceContainerLowest` steps roughly EQUAL by design, so widening one necessarily narrows the other. That makes any attempt to raise the bar-vs-surface step a zero-sum trade:
+
+| Dark `surface` | vs bar `#181833` | vs `surfaceContainerLowest` `#0C0C1C` |
+|---|---|---|
+| **`#14142B` (shipped)** | **1.0452:1** | **1.0735:1** |
+| `#101024` | 1.0853:1 (+0.040) | 1.0338:1 (−0.040) |
+| `#0D0D1C` | 1.1153:1 (+0.070) | 1.0060:1 (−0.068, effectively identical) |
+
+**Decision D9 — the dark `surface` is deliberately NOT changed.** At `#0D0D1C` the bar step is won and the lowest-container step is destroyed: a 1.0060:1 separation is visually indistinguishable, which would break the monotonic ladder that ASH-008 requires and is enforced by test. The shipped 1.0452:1 sits slightly under M3's own ~1.08:1 but in the same tonal family — that is the intended outcome, not a defect, and it is why no surface-vs-surface contrast assertion exists in the suite.
+
+**The better mechanism** for navbar/background separation is a gradient border on the navigation bar, which decouples the visual edge from the tonal ladder entirely. That is a separate, upcoming change and is deliberately NOT in scope here.
+
+Note: an earlier revision of `spec.md` justified distinctness with "M3's own `surfaceContainer` is 1.14:1 against its `surface`". That figure was **fabricated**; it is withdrawn and replaced by the measured 1.0826:1 / 1.0907:1 above.
 
 ## Polarity rule (design constraint)
 
@@ -47,7 +72,7 @@ The working copy shares one pair (`#1A1636` / `#5E5A85`) across both palettes. O
 | `primary` | `#8B5CF6` | `#6D28D9` |
 | `secondary` | `#3B82F6` | `#2563EB` |
 | `tertiary` | `#22D3EE` | `#0891B2` |
-| `secondaryContainer` | `#1E3A6E` | `#DCE7FD` |
+| `secondaryContainer` | `#1E3A6E` | `#BFD2FB` |
 | `onSecondaryContainer` | `#D7E3FF` | `#0B2A6B` |
 | `onSurface` | `#EDE9FE` | `#1A1636` |
 | `onSurfaceVariant` | `#9A95C8` | `#5E5A85` |
@@ -78,7 +103,7 @@ Every token the UI reads is passed explicitly. Verified in `material/color_schem
 **Commit 2 — `fix(theme):` code + tests, TDD.**
 
 1. `app_theme_test.dart`: failing literal-value assertions for all 15 tokens (both brightnesses) + ladder monotonicity.
-2. `app_theme.dart`: declare dark `#0C0C1C #101026 #181833 #1B1B3B #1E1E3F` + `#1E3A6E`/`#D7E3FF`; light `#F7F4FD #F0ECFA #E9E4F6 #E2DCF2` + `#DCE7FD`/`#0B2A6B`; split foregrounds into `_darkOnSurface #EDE9FE` / `_darkOnSurfaceVariant #9A95C8`, light keeps `#1A1636` / `#5E5A85`; pass all into both schemes. Do NOT pass light `surface` or `surfaceContainerLowest`.
+2. `app_theme.dart`: declare dark `#0C0C1C #101026 #181833 #1B1B3B #1E1E3F` + `#1E3A6E`/`#D7E3FF`; light `#F7F4FD #F0ECFA #E9E4F6 #E2DCF2` + `#BFD2FB`/`#0B2A6B`; split foregrounds into `_darkOnSurface #EDE9FE` / `_darkOnSurfaceVariant #9A95C8`, light keeps `#1A1636` / `#5E5A85`; pass all into both schemes. Do NOT pass light `surface` or `surfaceContainerLowest`.
 3. Tests green; `flutter analyze` clean.
 4. `test/widget_test.dart`: failing `MaterialApp.router` mapping assertion; then `lib/app.dart`: `theme: buildAppTheme(brightness: Brightness.light)` + `darkTheme: buildAppTheme(brightness: Brightness.dark)` + `themeMode: ThemeMode.system`.
 
@@ -92,10 +117,10 @@ The gap: `floating_nav_bar_test.dart` asserts *derivation* (`bar.shape == theme.
 | Unit | Dark ladder rises, light falls | `computeLuminance()` monotonicity over the 5-role order |
 | Unit | Dark foregrounds clear 3:1 on `#181833` | Contrast helper over hardcoded hex |
 | Widget | Bar surface ≠ Card surface | `bar.color` vs literal `#181833`/`#F0ECFA` |
-| Widget | Center circle is a container tone | Decoration color vs literal `#1E3A6E`/`#DCE7FD`, **not** `secondary` |
+| Widget | Center circle is a container tone | Decoration color vs literal `#1E3A6E`/`#BFD2FB`, **not** `secondary` |
 | Widget | `themeMode` mapping (A2) | Inspect pumped `MaterialApp.router` |
 
-Baseline `flutter test`: 75 pass / 2 pre-existing label failures (`Historial`/`Música`/`Ajustes`). Success = 75 + new, zero new failures.
+Baseline `flutter test` at clean HEAD `6bf84bd` (verified via `git worktree`): **68 pass / 2 pre-existing label failures** (`Historial`/`Música`/`Ajustes`). Success = 68 + new, zero new failures. The earlier "75" figure in this file was wrong: it was measured with a preliminary, still-broken `app_theme_test.dart` already sitting in the working tree, so it double-counted tests that did not exist at HEAD.
 
 ## Migration / rollout
 

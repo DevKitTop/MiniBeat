@@ -127,10 +127,15 @@ flutter:
   assets:
     - .env
 
-  # Google font family (ASH-002): Roboto variable font, OFL-licensed
-  # (assets/fonts/LICENSE.txt). Google Sans is NOT bundled (licensing caveat
-  # documented in lib/core/theme/app_theme.dart).
+  # Google font families (ASH-002), both OFL-licensed variable fonts.
+  # Plus Jakarta Sans is the primary family used by buildAppTheme(); Roboto is
+  # kept registered as a fallback. Google Sans is NOT bundled (proprietary —
+  # licensing caveat documented in lib/core/theme/app_theme.dart).
+  # Licenses: assets/fonts/PlusJakartaSans-OFL.txt, assets/fonts/LICENSE.txt
   fonts:
+    - family: Plus Jakarta Sans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-Variable.ttf
     - family: Roboto
       fonts:
         - asset: assets/fonts/Roboto-Variable.ttf
