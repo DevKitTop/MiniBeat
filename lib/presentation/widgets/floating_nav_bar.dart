@@ -6,11 +6,16 @@ import 'package:flutter/material.dart';
 /// or repository code. It replaces the standard [NavigationBar] visually while
 /// keeping the same index-based contract for the shell.
 ///
+/// The bar is centered with auto width (pill shape) and wrapped in a gradient
+/// border derived from the palette accent colors (primary → secondary →
+/// tertiary). All three destinations use circular icon containers; the center
+/// slot is structurally larger for visual prominence.
+///
 /// Destination contract — do not reorder:
 /// | index | branch      | role              |
-/// | 0     | /history    | flat side slot    |
+/// | 0     | /history    | circular side     |
 /// | 1     | /music      | center, prominent |
-/// | 2     | /settings   | flat side slot    |
+/// | 2     | /settings   | circular side     |
 class FloatingNavBar extends StatelessWidget {
   const FloatingNavBar({
     super.key,
@@ -28,21 +33,18 @@ class FloatingNavBar extends StatelessWidget {
   /// a theme token — ASH-007's ban covers color and radius constants only.
   static const double _centerCircleSize = 56;
 
+  /// Diameter of the side destination circles (dp).
+  static const double _sideCircleSize = 44;
+
+  /// Width of the gradient border around the bar (dp).
+  static const double _gradientBorderWidth = 1.5;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    // D2: derive, don't invent. The app theme (buildAppTheme) provides the M3
-    // tokens — card radius 12 and elevation 3 — and the bar reads them
-    // directly. A theme that omits them is a contract violation: fail loudly
-    // instead of silently substituting hardcoded constants.
-    final shape = theme.cardTheme.shape;
-    if (shape == null) {
-      throw StateError(
-        'FloatingNavBar requires Theme.cardTheme.shape — set it in '
-        'buildAppTheme() (ASH-007 D2).',
-      );
-    }
+    // D2: derive elevation from the theme. The bar's shape is its own
+    // StadiumBorder — it no longer reads cardTheme.shape.
     final elevation = theme.navigationBarTheme.elevation;
     if (elevation == null) {
       throw StateError(
@@ -55,55 +57,77 @@ class FloatingNavBar extends StatelessWidget {
       top: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        child: Material(
-          key: const ValueKey('floating-nav-bar'),
-          color: colorScheme.surfaceContainer,
-          elevation: elevation,
-          shape: shape,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildSideDestination(
-                  context,
-                  index: 0,
-                  label: 'Historial',
-                  icon: Icons.history,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            DecoratedBox(
+              key: const ValueKey('floating-nav-gradient-border'),
+              decoration: ShapeDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    colorScheme.primary,
+                    colorScheme.secondary,
+                    colorScheme.tertiary,
+                  ],
                 ),
-                _buildCenterDestination(
-                  context,
-                  label: 'Música',
-                  icon: Icons.music_note,
+                shape: const StadiumBorder(),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(_gradientBorderWidth),
+                child: Material(
+                  key: const ValueKey('floating-nav-bar'),
+                  color: colorScheme.surfaceContainer,
+                  shape: const StadiumBorder(),
+                  elevation: elevation,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildSideDestination(
+                          context,
+                          index: 0,
+                          label: 'Historial',
+                          icon: Icons.history,
+                        ),
+                        const SizedBox(width: 16),
+                        _buildCenterDestination(
+                          context,
+                          label: 'Música',
+                          icon: Icons.play_arrow_rounded,
+                        ),
+                        const SizedBox(width: 16),
+                        _buildSideDestination(
+                          context,
+                          index: 2,
+                          label: 'Ajustes',
+                          icon: Icons.settings,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                _buildSideDestination(
-                  context,
-                  index: 2,
-                  label: 'Ajustes',
-                  icon: Icons.settings,
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  /// Flat side destination (index 0 or 2): muted when unselected, emphasized
-  /// with a secondaryContainer pill when selected (D2).
+  /// Circular side destination (index 0 or 2): filled circle with
+  /// secondaryContainer when selected, transparent when not.
   Widget _buildSideDestination(
     BuildContext context, {
     required int index,
     required String label,
     required IconData icon,
   }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
     final selected = index == selectedIndex;
-    final foreground = selected
-        ? colorScheme.onSurface
-        : colorScheme.onSurfaceVariant;
 
     return Semantics(
       button: true,
@@ -111,33 +135,24 @@ class FloatingNavBar extends StatelessWidget {
       label: label,
       child: InkWell(
         key: ValueKey('floating-nav-destination-$index'),
-        customBorder: const StadiumBorder(),
+        customBorder: const CircleBorder(),
         onTap: () => onDestinationSelected(index),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: selected
-              ? ShapeDecoration(
-                  color: colorScheme.secondaryContainer,
-                  shape: const StadiumBorder(),
-                )
-              : null,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 22, color: foreground),
-              const SizedBox(height: 2),
-              // The Semantics wrapper above already provides the label;
-              // exclude the visual text so screen readers read it once.
-              ExcludeSemantics(
-                child: Text(
-                  label,
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: foreground,
-                  ),
-                ),
-              ),
-            ],
+          key: ValueKey('floating-nav-side-circle-$index'),
+          width: _sideCircleSize,
+          height: _sideCircleSize,
+          decoration: BoxDecoration(
+            color: selected
+                ? colorScheme.secondaryContainer
+                : Colors.transparent,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            size: 22,
+            color: selected
+                ? colorScheme.onSecondaryContainer
+                : colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -151,8 +166,7 @@ class FloatingNavBar extends StatelessWidget {
     required String label,
     required IconData icon,
   }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
     final selected = selectedIndex == 1;
 
     return Semantics(
@@ -163,33 +177,15 @@ class FloatingNavBar extends StatelessWidget {
         key: const ValueKey('floating-nav-destination-1'),
         customBorder: const CircleBorder(),
         onTap: () => onDestinationSelected(1),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              key: const ValueKey('floating-nav-center-circle'),
-              width: _centerCircleSize,
-              height: _centerCircleSize,
-              decoration: BoxDecoration(
-                color: colorScheme.secondaryContainer,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 26,
-                color: colorScheme.onSecondaryContainer,
-              ),
-            ),
-            const SizedBox(height: 2),
-            ExcludeSemantics(
-              child: Text(
-                label,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-          ],
+        child: Container(
+          key: const ValueKey('floating-nav-center-circle'),
+          width: _centerCircleSize,
+          height: _centerCircleSize,
+          decoration: BoxDecoration(
+            color: colorScheme.secondaryContainer,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 28, color: colorScheme.onSecondaryContainer),
         ),
       ),
     );

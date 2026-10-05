@@ -6,6 +6,7 @@ import 'package:rep_mini/app.dart';
 import 'package:rep_mini/core/config/app_config.dart';
 import 'package:rep_mini/core/providers/app_providers.dart';
 import 'package:rep_mini/core/providers/auth_session_provider.dart';
+import 'package:rep_mini/presentation/widgets/floating_nav_bar.dart';
 
 /// Placeholder config injected in tests (CFG-003: no real values, no secrets).
 const _testConfig = AppConfig(
@@ -30,10 +31,10 @@ Widget _boot({List<Override> overrides = const []}) => ProviderScope(
 /// says nothing about which palette Flutter actually SELECTS once `themeMode`
 /// and the platform brightness have been applied. ASH-010 is a contract about
 /// the theme that reaches the UI, so the probe has to sit below the `Theme`
-/// that `MaterialApp` inserts. `NavigationBar` is inside the router's
+/// that `MaterialApp` inserts. `FloatingNavBar` is inside the router's
 /// `AppShell`, so it is well below that insertion point.
 ThemeData _resolvedTheme(WidgetTester tester) {
-  final probe = find.byType(NavigationBar);
+  final probe = find.byType(FloatingNavBar);
   expect(probe, findsOneWidget, reason: 'the shell must render before probing');
   return Theme.of(tester.element(probe));
 }
@@ -46,7 +47,7 @@ void main() {
       await tester.pumpWidget(_boot());
       await tester.pumpAndSettle();
 
-      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(find.byType(FloatingNavBar), findsOneWidget);
       expect(find.text('Local library placeholder'), findsOneWidget);
     });
 
@@ -55,7 +56,7 @@ void main() {
       await tester.pumpWidget(_boot());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Cloud'));
+      await tester.tap(find.bySemanticsLabel('Música'));
       await tester.pumpAndSettle();
 
       expect(find.text('Sign in to access your cloud library'), findsOneWidget);
@@ -74,7 +75,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Cloud'));
+      await tester.tap(find.bySemanticsLabel('Música'));
       await tester.pumpAndSettle();
 
       expect(find.text('Cloud library placeholder'), findsOneWidget);
