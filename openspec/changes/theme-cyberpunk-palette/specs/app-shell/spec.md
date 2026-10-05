@@ -85,13 +85,15 @@ Assertions SHALL compare tokens against literal palette values; an expected valu
 
 ### Requirement: ASH-010 Both cyberpunk palettes are reachable
 
-`MaterialApp.router` SHALL set `theme` to the dark palette, `darkTheme` to the light palette, and `themeMode: ThemeMode.system`. A palette no user can reach SHALL NOT be shipped as the accessibility variant.
+`MaterialApp.router` SHALL set `theme` to the light palette, `darkTheme` to the dark palette, and `themeMode: ThemeMode.system`. A palette no user can reach SHALL NOT be shipped as the accessibility variant.
+
+`MaterialApp` resolves `theme` when the effective `ThemeMode` is light and `darkTheme` when it is dark. Mapping the dark palette to `theme` and the light palette to `darkTheme` would hand the dark palette to light-mode users, so the assignment MUST follow the platform polarity rather than the palette's aesthetic intensity.
 
 #### Scenario: Theme mapping is declared
 
 - GIVEN a widget test pumps `App`
 - WHEN the `MaterialApp.router` widget is inspected
-- THEN `theme.brightness` is dark, `darkTheme.brightness` is light, `themeMode` is `ThemeMode.system`
+- THEN `theme.brightness` is light, `darkTheme.brightness` is dark, `themeMode` is `ThemeMode.system`
 
 #### Scenario: System brightness selects the palette
 

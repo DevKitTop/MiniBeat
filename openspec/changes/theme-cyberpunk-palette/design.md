@@ -17,7 +17,7 @@ buildAppTheme() ──> _darkScheme | _lightScheme ──> App(theme, darkTheme,
 
 | # | Option | Tradeoff | Decision |
 |---|--------|----------|----------|
-| A2 | `theme` dark + `darkTheme` light + `ThemeMode.system` | +3 lines; light becomes reachable | **Chosen** (ASH-010) |
+| A2 | `theme` light + `darkTheme` dark + `ThemeMode.system` | +3 lines; light becomes reachable | **Chosen** (ASH-010) |
 | B | D-series row vs new ADR | ADR rule has 9 areas; theming is not one | **D-series row** |
 | C | Declare light `surfaceContainerLowest` or omit | Declare = no-op; contradicts ASH-011 | **Omit**; pinned by test |
 | D | Shared `on*` pair vs per-brightness | Shared saves 2 constants, breaks dark legibility | **Per-brightness** |
@@ -80,7 +80,7 @@ Every token the UI reads is passed explicitly. Verified in `material/color_schem
 1. `app_theme_test.dart`: failing literal-value assertions for all 15 tokens (both brightnesses) + ladder monotonicity.
 2. `app_theme.dart`: declare dark `#0C0C1C #101026 #181833 #1B1B3B #1E1E3F` + `#1E3A6E`/`#D7E3FF`; light `#F7F4FD #F0ECFA #E9E4F6 #E2DCF2` + `#DCE7FD`/`#0B2A6B`; split foregrounds into `_darkOnSurface #EDE9FE` / `_darkOnSurfaceVariant #9A95C8`, light keeps `#1A1636` / `#5E5A85`; pass all into both schemes. Do NOT pass light `surface` or `surfaceContainerLowest`.
 3. Tests green; `flutter analyze` clean.
-4. `test/widget_test.dart`: failing `MaterialApp.router` mapping assertion; then `lib/app.dart`: `darkTheme: buildAppTheme(brightness: Brightness.light)` + `themeMode: ThemeMode.system`.
+4. `test/widget_test.dart`: failing `MaterialApp.router` mapping assertion; then `lib/app.dart`: `theme: buildAppTheme(brightness: Brightness.light)` + `darkTheme: buildAppTheme(brightness: Brightness.dark)` + `themeMode: ThemeMode.system`.
 
 ## Testing strategy
 
